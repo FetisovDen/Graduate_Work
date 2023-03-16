@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 
 
 @Slf4j
-@PreAuthorize("hasRole('USER')")
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequestMapping("/users")
@@ -26,12 +25,14 @@ public class UserController {
     }
 
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/set_password")
     public ResponseEntity<NewPasswordDto> setPassword(Authentication authentication,
                                                       @RequestBody NewPasswordDto newPasswordDto) {
         return ResponseEntity.ok(userService.setPassword(authentication.getName(), newPasswordDto));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping( "/me")
     public ResponseEntity<UserDto> getUser(Authentication authentication) {
         return ResponseEntity.ok(userService.getUserDto(authentication.getName()));
@@ -45,11 +46,13 @@ public class UserController {
                 .body(img);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("/me")
     public ResponseEntity<UserDto> updateUser(Authentication authentication, @RequestBody UserDto body) {
         return ResponseEntity.ok(userService.updateUser(authentication.getName(), body));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping(path = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<UserDto> updateUserImage(Authentication authentication,
                                                    @RequestPart("MultipartFile") MultipartFile image) {

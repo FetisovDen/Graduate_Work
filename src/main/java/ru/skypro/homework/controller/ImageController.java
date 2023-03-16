@@ -11,7 +11,6 @@ import ru.skypro.homework.service.AdsService;
 import ru.skypro.homework.service.ImageService;
 
 @CrossOrigin(value = "http://localhost:3000")
-@PreAuthorize("hasRole('USER')")
 @RestController
 @RequestMapping("/image")
 public class ImageController {
@@ -23,7 +22,7 @@ public class ImageController {
         this.adsService = adsService;
     }
 
-    @GetMapping(value = "/images/{idAds}/", produces = {MediaType.IMAGE_JPEG_VALUE})
+    @GetMapping(value = "/images/{idAds}", produces = {MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<byte[]> getImage(@PathVariable int idAds) {
         byte[] img = imageService.getImage(idAds);
         return ResponseEntity.ok()
@@ -32,6 +31,7 @@ public class ImageController {
                 .body(img);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping(value = "/{idAds}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> updateAdsImage(Authentication au, @PathVariable int idAds, @RequestPart("image") MultipartFile image) {

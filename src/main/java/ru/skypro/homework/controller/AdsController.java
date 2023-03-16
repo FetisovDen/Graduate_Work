@@ -26,7 +26,7 @@ public class AdsController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdsDto> addAds(Authentication authentication, @RequestPart CreateAdsDto properties, @RequestPart MultipartFile image) {
         return ResponseEntity.ok(adsService.addAds(authentication.getName(), properties, image));
     }
