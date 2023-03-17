@@ -17,10 +17,10 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class AvatarService {
     private final AvatarRepository avatarRepository;
-    private final String avatarDir = "./images/avatar";
+    private final String avatarDir;
     private final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public AvatarService(String avatarDir, AvatarRepository avatarRepository) {
+    public AvatarService(@Value("${path.to.images.folder}./avatar")String avatarDir, AvatarRepository avatarRepository) {
         this.avatarRepository = avatarRepository;
         this.avatarDir = avatarDir;
     }
@@ -29,11 +29,11 @@ public class AvatarService {
         try{
             byte[] img = multipartFile.getBytes();
             Path path = Path.of(avatarDir, user.getId() + "_" + LocalDateTime.now().format(format) + ".jpg");
+            Files.createDirectories(path.getParent());
             Files.write(path, img);
-            Avatar avatar = new Avatar();
-            avatar.setPathAvatar(path.toString());
-            avatar = avatarRepository.save(avatar);
-            return avatar;
+            user.getAvatar().setPathAvatar(path.toString());
+            avatarRepository.save(user.getAvatar());
+            return user.getAvatar();
         }catch (IOException io) {
             throw new RuntimeException();}
     }
@@ -42,8 +42,12 @@ public class AvatarService {
         Avatar ava = user.getAvatar();
         if (ava != null) {
             checkImage(ava);
-            deleteImageFile(Path.of(ava.getPathAvatar()));
-            avatarRepository.delete(ava);
+            try {
+                deleteImageFile(Path.of(ava.getPathAvatar()));
+            }
+            catch (NullPointerException n){
+                throw new AvatarNotFoundException();
+            }
         }
         return addAvatar(user, file);
     }

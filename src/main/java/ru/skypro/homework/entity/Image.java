@@ -17,8 +17,8 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String pathImage;
-    @Lob
-    private byte[] bytes;
+//    @Lob
+//    private byte[] bytes;
 
     @Override
     public boolean equals(Object o) {

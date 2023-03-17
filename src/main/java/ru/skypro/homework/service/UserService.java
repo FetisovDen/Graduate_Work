@@ -11,6 +11,11 @@ import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -46,7 +51,12 @@ public class UserService {
         User user = userRepository.findByUserName(userName);
         checkUser(user);
         Avatar avatar = user.getAvatar();
-        return avatar.getBytes();
+        Path path = Paths.get(avatar.getPathAvatar());
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     public UserDto updateUser(String userName, UserDto body) {
         User oldUser = getUser(userName);

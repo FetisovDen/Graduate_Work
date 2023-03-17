@@ -39,6 +39,7 @@ public class UserController {
     }
     @GetMapping(value =  "/me/image", produces = {MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<byte[]> getUserAvatar(Authentication authentication) {
+        System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqq");
         byte[] img = userService.getUserAvatar(authentication.getName());
         return ResponseEntity.ok()
                 .contentLength(img.length)
@@ -54,8 +55,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PatchMapping(path = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<UserDto> updateUserImage(Authentication authentication,
-                                                   @RequestPart("MultipartFile") MultipartFile image) {
+    public ResponseEntity<UserDto> updateUserImage(@RequestPart("image") MultipartFile image,
+                                                   Authentication authentication) {
         userService.updateUserImage(authentication.getName(), image);
         return ResponseEntity.ok().build();
     }

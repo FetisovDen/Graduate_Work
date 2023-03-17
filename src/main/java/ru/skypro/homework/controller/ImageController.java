@@ -12,7 +12,7 @@ import ru.skypro.homework.service.ImageService;
 
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/ads")
 public class ImageController {
     private final ImageService imageService;
     private final AdsService adsService;
@@ -21,21 +21,13 @@ public class ImageController {
         this.imageService = imageService;
         this.adsService = adsService;
     }
-
-    @GetMapping(value = "/images/{idAds}", produces = {MediaType.IMAGE_JPEG_VALUE})
-    public ResponseEntity<byte[]> getImage(@PathVariable int idAds) {
-        byte[] img = imageService.getImage(idAds);
-        return ResponseEntity.ok()
-                .contentLength(img.length)
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(img);
-    }
-
     @PreAuthorize("hasRole('USER')")
-    @PatchMapping(value = "/{idAds}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> updateAdsImage(Authentication au, @PathVariable int idAds, @RequestPart("image") MultipartFile image) {
-        byte[] img = imageService.updateImage(au.getName(), idAds, image);
+    @PatchMapping(value = "{id}/image",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<byte[]> updateAdsImage( @PathVariable int id,
+                                                  @RequestPart("image") MultipartFile image,
+                                                  Authentication authentication) {
+        byte[] img = imageService.updateImage(authentication.getName(), id, image);
         return ResponseEntity.ok()
                 .contentLength(img.length)
                 .contentType(MediaType.IMAGE_JPEG)

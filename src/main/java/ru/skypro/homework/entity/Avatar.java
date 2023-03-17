@@ -17,8 +17,8 @@ public class Avatar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String pathAvatar;
-    @Lob
-    private byte[] bytes;
+//    @Lob
+//    private byte[] bytes;
 
     public Avatar(Integer id, String pathAvatar) {
         this.id = id;

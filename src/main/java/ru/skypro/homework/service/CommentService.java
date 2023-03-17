@@ -5,11 +5,14 @@ import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.ResponseWrapperCommentDto;
 import ru.skypro.homework.entity.Ads;
 import ru.skypro.homework.entity.Comment;
+import ru.skypro.homework.exception.AdsNotFoundException;
 import ru.skypro.homework.exception.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.AdsRepository;
 import ru.skypro.homework.repository.CommentRepository;
+import ru.skypro.homework.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +21,13 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final AdsRepository adsRepository;
     private final CommentMapper commentMapper;
+    private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository, AdsRepository adsRepository, CommentMapper commentMapper) {
+    public CommentService(CommentRepository commentRepository, AdsRepository adsRepository, CommentMapper commentMapper, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.adsRepository = adsRepository;
         this.commentMapper = commentMapper;
+        this.userRepository = userRepository;
     }
 
     public ResponseWrapperCommentDto getAllCommentsByAds(Ads ads) {
@@ -35,22 +40,24 @@ public class CommentService {
         return new ResponseWrapperCommentDto(dtoList.size(), dtoList);
     }
 
-    public CommentDto addComments(Ads ads, CommentDto commentDto) {
+    public CommentDto addComments(String username, Ads ads, CommentDto commentDto) {
+        commentDto.setCreatedAt(LocalDateTime.now().toString());
+        commentDto.setAuthor(userRepository.findByUserName(username).getId());
         Comment comment = commentMapper.commentDtoToEntity(commentDto);
         comment.setAds(ads);
+        comment.setUser(userRepository.findByUserName(username));
         commentRepository.save(comment);
         return commentDto;
     }
 
     public CommentDto getCommentOfAds(Ads ads, int id) {
-        Comment comment = commentRepository.findCommentByAdsAndId(ads, id);
+        Comment comment = commentRepository.findById(id).orElseThrow(CommentNotFoundException::new);
         checkComment(comment);
         return commentMapper.commentToDTO(comment);
     }
 
-    public CommentDto deleteCommentOfAds(Ads ads, int id) {
-        Comment comment = commentRepository.deleteCommentByAdsAndId(ads, id);
-        return commentMapper.commentToDTO(comment);
+    public void deleteCommentOfAds( int id) {
+        commentRepository.delete(commentRepository.findById(id).orElseThrow(CommentNotFoundException::new));
     }
 
     public CommentDto updateComments(Ads ads, int id, CommentDto commentDto) {

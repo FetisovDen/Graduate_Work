@@ -26,9 +26,9 @@ CREATE TABLE users
     id         INTEGER PRIMARY KEY generated always as identity,
     first_name TEXT      NOT NULL,
     last_name  TEXT      NOT NULL,
-    email      TEXT      NOT NULL,
-    phone      TEXT      NOT NULL,
-    city       TEXT      NOT NULL,
+    email      TEXT      ,
+    phone      TEXT      ,
+    city       TEXT      ,
     reg_date   TIMESTAMP NOT NULL,
     user_name  TEXT      NOT NULL,
     password   TEXT      NOT NULL,
@@ -60,6 +60,12 @@ CREATE TABLE comment
     text       TEXT      NOT NULL,
     created_at TIMESTAMP NOT NULL
 );
+--changeset dfetisov:6
+INSERT INTO avatar (path_avatar) VALUES('null');
+
+--changeset dfetisov:7
+INSERT INTO users (first_name, last_name, email, phone,  city, reg_date, user_name,password,id_avatar,role)
+    VALUES('1', '1','user@gmail.com',null, null, '2023-06-04','user@gmail.com','password',1,'USER');
 
 
 

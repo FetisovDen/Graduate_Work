@@ -66,12 +66,13 @@ public class AdsService {
         return commentService.getAllCommentsByAds(ads);
     }
 
-    public CommentDto addComments(int adPk, CommentDto commentDto) {
+    public CommentDto addComments(String username,int adPk, CommentDto commentDto) {
         if (adPk < 0 || commentDto == null) {
             throw new IllegalArgumentException();
         }
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
-        return commentService.addComments(ads, commentDto);
+        commentDto.setPk(adPk);
+        return commentService.addComments(username,ads, commentDto);
     }
 
 
@@ -108,11 +109,11 @@ public class AdsService {
         return commentService.getCommentOfAds(ads, id);
     }
 
-    public CommentDto deleteCommentOfAds(String username, int adPk, int id) {
+    public void deleteCommentOfAds(String username, int adPk, int id) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
         if(!ads.getUser().equals(user)) {throw new RequestDeniedException();}
-        return commentService.deleteCommentOfAds(ads, id);
+        commentService.deleteCommentOfAds(id);
     }
 
     public CommentDto updateComments(String username, int adPk, int id, CommentDto commentDto) {
