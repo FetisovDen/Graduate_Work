@@ -1,8 +1,13 @@
 package ru.skypro.homework.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.RegisterReq;
+import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Avatar;
 import ru.skypro.homework.entity.User;
@@ -15,9 +20,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final AvatarService avatarService;
     private final UserMapper userMapper;
@@ -88,4 +95,23 @@ public class UserService {
             throw new UserNotFoundException();
         }
     }
+
+    public boolean userCheck(String username) {
+        return userRepository.existsUserByUserName(username);
+    }
+
+
+    public void addUser(RegisterReq registerReq) {
+        User user = userMapper.toEntity(registerReq);
+        user.setRegDate(LocalDateTime.now());
+        user.setAvatar(new Avatar(1,"zero"));
+        user.setRole(Role.USER);
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUserName(username);
+        return  user;
+}
 }

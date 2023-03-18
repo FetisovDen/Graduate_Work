@@ -61,11 +61,11 @@ CREATE TABLE comment
     created_at TIMESTAMP NOT NULL
 );
 --changeset dfetisov:6
-INSERT INTO avatar (path_avatar) VALUES('null');
+INSERT INTO avatar (path_avatar) VALUES('zero');
 
---changeset dfetisov:7
-INSERT INTO users (first_name, last_name, email, phone,  city, reg_date, user_name,password,id_avatar,role)
-    VALUES('1', '1','user@gmail.com',null, null, '2023-06-04','user@gmail.com','password',1,'USER');
+-- --changeset dfetisov:7
+-- INSERT INTO users (first_name, last_name, email, phone,  city, reg_date, user_name,password,id_avatar,role)
+--     VALUES('1', '1','user@gmail.com',null, null, '2023-06-04','user@gmail.com','password',1,'USER');
 
 
 
