@@ -32,28 +32,29 @@ public class UserController {
         return ResponseEntity.ok(userService.setPassword(authentication.getName(), newPasswordDto));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping( "/me")
     public ResponseEntity<UserDto> getUser(Authentication authentication) {
         return ResponseEntity.ok(userService.getUserDto(authentication.getName()));
     }
-    @GetMapping(value =  "/me/image", produces = {MediaType.IMAGE_JPEG_VALUE})
-    public ResponseEntity<byte[]> getUserAvatar(Authentication authentication) {
-        System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqq");
-        byte[] img = userService.getUserAvatar(authentication.getName());
+
+    @GetMapping(value = "/avatar/{ad_pk}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<byte[]> getImage(@PathVariable int ad_pk) {
+                byte[] img = userService.getUserAvatar(ad_pk);
         return ResponseEntity.ok()
                 .contentLength(img.length)
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(img);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PatchMapping("/me")
     public ResponseEntity<UserDto> updateUser(Authentication authentication, @RequestBody UserDto body) {
         return ResponseEntity.ok(userService.updateUser(authentication.getName(), body));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PatchMapping(path = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<UserDto> updateUserImage(@RequestPart("image") MultipartFile image,
                                                    Authentication authentication) {

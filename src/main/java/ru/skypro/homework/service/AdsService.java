@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ads;
-import ru.skypro.homework.entity.Avatar;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.AdsNotFoundException;
 import ru.skypro.homework.exception.RequestDeniedException;
@@ -13,11 +12,9 @@ import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.AdsRepository;
 import ru.skypro.homework.repository.UserRepository;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class AdsService {
@@ -53,10 +50,9 @@ public class AdsService {
 
     public AdsDto addAds(String userName, CreateAdsDto createAdsDto, MultipartFile multipartFile) {
         Ads ads = adsMapper.adsToEntity(createAdsDto);
-        User user = userMapper.toEntity(userService.getUserDto(userName));
-        ads.setUser(user);
+        ads.setUser(userMapper.toEntity(userService.getUserDto(userName)));
         ads.setImage(imageService.addImage(ads, multipartFile));
-        userService.updateUser(userName, userMapper.toDTO(ads.getUser()));
+        userService.updateUser(userName, userService.getUserDto(userName));
         ads = adsRepository.save(ads);
         return adsMapper.adsToDTO(ads);
     }
@@ -89,6 +85,8 @@ public class AdsService {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
         if(!ads.getUser().equals(user)) {throw new RequestDeniedException();}
+        commentService.deleteALLCommentOfAds(ads);
+        imageService.deleteImageFile(Path.of(ads.getImage().getPathImage()));
         adsRepository.deleteById(id);
         return adsMapper.adsToFullAdsDTO(ads);
     }
@@ -106,7 +104,7 @@ public class AdsService {
 
     public CommentDto getCommentOfAds(int adPk, int id) {
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
-        return commentService.getCommentOfAds(ads, id);
+        return commentService.getCommentOfAds(id);
     }
 
     public void deleteCommentOfAds(String username, int adPk, int id) {

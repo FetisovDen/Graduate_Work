@@ -5,10 +5,8 @@ import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.ResponseWrapperCommentDto;
 import ru.skypro.homework.entity.Ads;
 import ru.skypro.homework.entity.Comment;
-import ru.skypro.homework.exception.AdsNotFoundException;
 import ru.skypro.homework.exception.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
-import ru.skypro.homework.repository.AdsRepository;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.repository.UserRepository;
 
@@ -19,13 +17,11 @@ import java.util.List;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final AdsRepository adsRepository;
     private final CommentMapper commentMapper;
     private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository, AdsRepository adsRepository, CommentMapper commentMapper, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, CommentMapper commentMapper, UserRepository userRepository) {
         this.commentRepository = commentRepository;
-        this.adsRepository = adsRepository;
         this.commentMapper = commentMapper;
         this.userRepository = userRepository;
     }
@@ -50,7 +46,7 @@ public class CommentService {
         return commentDto;
     }
 
-    public CommentDto getCommentOfAds(Ads ads, int id) {
+    public CommentDto getCommentOfAds(int id) {
         Comment comment = commentRepository.findById(id).orElseThrow(CommentNotFoundException::new);
         checkComment(comment);
         return commentMapper.commentToDTO(comment);
@@ -71,6 +67,13 @@ public class CommentService {
     private void checkComment(Comment comment) {
         if (comment == null) {
             throw new CommentNotFoundException();
+        }
+    }
+
+    public void deleteALLCommentOfAds(Ads ads) {
+        List<Comment> allCommentsOfAds = commentRepository.findAllByAds(ads);
+        for (Comment allCommentsOfAd : allCommentsOfAds) {
+            commentRepository.delete(commentRepository.findById(allCommentsOfAd.getId()).orElseThrow(CommentNotFoundException::new));
         }
     }
 }
