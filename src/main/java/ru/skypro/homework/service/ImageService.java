@@ -74,7 +74,7 @@ public class ImageService {
         Image image1 = imageRepository.findById(ads.getImage().getId()).orElseThrow(AdsNotFoundException::new);
         try {
         byte[] img = image.getBytes();
-        Path path = Path.of(imageDir, ads.getDescription()+ LocalDateTime.now().format(format) + ".jpg");
+        Path path = Path.of(imageDir, ads.getUser().getId()+"_"+ LocalDateTime.now().format(format) + Objects.requireNonNull(image.getOriginalFilename()).lastIndexOf('.'));
         Files.createDirectories(path.getParent());
         Files.write(path, img);
         image1.setPathImage(path.toString());

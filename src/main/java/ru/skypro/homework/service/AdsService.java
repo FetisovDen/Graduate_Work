@@ -85,11 +85,9 @@ public class AdsService {
     public FullAdsDto deleteAds(String username, int id) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
-        if (!user.getRole().equals(Role.ADMIN)) {
-            if (!ads.getUser().equals(user)) {
+        if (!user.getRole().equals(Role.ADMIN) && !ads.getUser().equals(user)) {
                 throw new RequestDeniedException();
             }
-        }
         commentService.deleteALLCommentOfAds(ads);
         imageService.deleteImageFile(Path.of(ads.getImage().getPathImage()));
         adsRepository.deleteById(id);
@@ -99,10 +97,8 @@ public class AdsService {
     public AdsDto updateAds(String username, int id, CreateAdsDto createAdsDto) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
-        if (!user.getRole().equals(Role.ADMIN)) {
-            if (!ads.getUser().equals(user)) {
-                throw new RequestDeniedException();
-            }
+        if (!user.getRole().equals(Role.ADMIN) && !ads.getUser().equals(user)) {
+            throw new RequestDeniedException();
         }
         ads.setDescription(createAdsDto.getDescription());
         ads.setPrice(createAdsDto.getPrice());
@@ -112,19 +108,18 @@ public class AdsService {
     }
 
     public CommentDto getCommentOfAds(int adPk, int id) {
-        Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
+        adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
         return commentService.getCommentOfAds(id);
     }
 
     public void deleteCommentOfAds(String username, int adPk, int id) {
         User user = userRepository.findByUserName(username);
-        Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
+        adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
         Comment comment = commentService.getCommentById(id);
-        if (user.getRole().equals(Role.ADMIN)) {
-            commentService.deleteCommentOfAds(id);
-        } else if (!comment.getUser().equals(user)) {
-            throw new RequestDeniedException();
-        } else commentService.deleteCommentOfAds(id);
+        System.out.println(user.getRole().equals(Role.ADMIN)&&!comment.getUser().equals(user));
+        if (!user.getRole().equals(Role.ADMIN)&&!comment.getUser().equals(user)) {
+            throw new RequestDeniedException();}
+        commentService.deleteCommentOfAds(id);
     }
 
     public CommentDto updateComments(String username, int adPk, int id, CommentDto commentDto) {
