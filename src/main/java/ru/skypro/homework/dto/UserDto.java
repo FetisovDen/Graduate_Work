@@ -11,4 +11,5 @@ public class UserDto {
     private String email;
     private String city;
     private String regDate;
+    private String image;
 }

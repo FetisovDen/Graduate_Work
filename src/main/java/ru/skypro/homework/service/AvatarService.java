@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.entity.Avatar;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.AvatarNotFoundException;
+import ru.skypro.homework.exception.ImageNotFoundException;
 import ru.skypro.homework.repository.AvatarRepository;
 
 import java.io.IOException;
@@ -31,11 +32,21 @@ public class AvatarService {
             Path path = Path.of(avatarDir, user.getId() + "_" + LocalDateTime.now().format(format) + ".jpg");
             Files.createDirectories(path.getParent());
             Files.write(path, img);
-            user.getAvatar().setPathAvatar(path.toString());
-            avatarRepository.save(user.getAvatar());
-            return user.getAvatar();
+            Avatar avatar = new Avatar();
+            avatar.setPathAvatar(path.toString());
+            avatarRepository.save(avatar);
+            return avatar;
         }catch (IOException io) {
             throw new RuntimeException();}
+    }
+    public byte[] getImage(int idAvatar) {
+        Avatar avatar = avatarRepository.findById(idAvatar).orElseThrow(AvatarNotFoundException::new);
+        Path path = Path.of(avatar.getPathAvatar());
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException | NoSuchFieldError e) {
+            throw new ImageNotFoundException();
+        }
     }
 
     public Avatar updateAvatar(User user, MultipartFile file) {

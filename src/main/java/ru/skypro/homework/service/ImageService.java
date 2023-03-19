@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 
 @Service
@@ -39,12 +40,12 @@ public class ImageService {
     public Image addImage(Ads ads, MultipartFile multipartFile) {
         try {
             byte[] img = multipartFile.getBytes();
-            Path path = Path.of(imageDir, ads.getDescription()+ LocalDateTime.now().format(format) + ".jpg");
+            Path path = Path.of(imageDir, ads.getUser().getId()+"_"+ LocalDateTime.now().format(format) + Objects.requireNonNull(multipartFile.getOriginalFilename()).lastIndexOf('.'));
             Files.createDirectories(path.getParent());
             Files.write(path, img);
             Image image = new Image();
             image.setPathImage(path.toString());
-            image = imageRepository.save(image);
+            imageRepository.save(image);
             return image;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -73,7 +74,7 @@ public class ImageService {
         Image image1 = imageRepository.findById(ads.getImage().getId()).orElseThrow(AdsNotFoundException::new);
         try {
         byte[] img = image.getBytes();
-        Path path = Path.of(imageDir, ads.getDescription()+ LocalDateTime.now().format(format) + ".jpg");
+        Path path = Path.of(imageDir, ads.getUser().getId()+"_"+ LocalDateTime.now().format(format) + Objects.requireNonNull(image.getOriginalFilename()).lastIndexOf('.'));
         Files.createDirectories(path.getParent());
         Files.write(path, img);
         image1.setPathImage(path.toString());

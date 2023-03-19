@@ -16,12 +16,9 @@ import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.time.LocalDateTime;
-import java.util.Optional;
+
 
 @Service
 public class UserService implements UserDetailsService {
@@ -32,6 +29,7 @@ public class UserService implements UserDetailsService {
     public UserService(UserRepository userRepository, AvatarService avatarService, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.avatarService = avatarService;
+
         this.userMapper = userMapper;
     }
 
@@ -54,16 +52,8 @@ public class UserService implements UserDetailsService {
     public UserDto getUserDto(String userName) {
         return userMapper.toDTO(getUser(userName));
     }
-    public byte[] getUserAvatar(String userName) {
-        User user = userRepository.findByUserName(userName);
-        checkUser(user);
-        Avatar avatar = user.getAvatar();
-        Path path = Paths.get(avatar.getPathAvatar());
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public byte[] getUserAvatar(Integer avatarId) {
+            return avatarService.getImage(avatarId);
     }
     public UserDto updateUser(String userName, UserDto body) {
         User oldUser = getUser(userName);
@@ -111,7 +101,6 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUserName(username);
-        return  user;
+        return userRepository.findByUserName(username);
 }
 }
