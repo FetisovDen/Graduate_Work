@@ -29,6 +29,7 @@ public class UserService implements UserDetailsService {
     public UserService(UserRepository userRepository, AvatarService avatarService, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.avatarService = avatarService;
+
         this.userMapper = userMapper;
     }
 

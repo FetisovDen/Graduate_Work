@@ -5,6 +5,7 @@ import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.ResponseWrapperCommentDto;
 import ru.skypro.homework.entity.Ads;
 import ru.skypro.homework.entity.Comment;
+import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.CommentRepository;
@@ -75,5 +76,9 @@ public class CommentService {
         for (Comment allCommentsOfAd : allCommentsOfAds) {
             commentRepository.delete(commentRepository.findById(allCommentsOfAd.getId()).orElseThrow(CommentNotFoundException::new));
         }
+    }
+
+    public Comment getCommentById(Integer id) {
+        return commentRepository.findById(id).orElseThrow(CommentNotFoundException::new);
     }
 }

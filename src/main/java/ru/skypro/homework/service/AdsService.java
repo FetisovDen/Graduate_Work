@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ads;
+import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exception.AdsNotFoundException;
 import ru.skypro.homework.exception.RequestDeniedException;
@@ -62,13 +63,13 @@ public class AdsService {
         return commentService.getAllCommentsByAds(ads);
     }
 
-    public CommentDto addComments(String username,int adPk, CommentDto commentDto) {
+    public CommentDto addComments(String username, int adPk, CommentDto commentDto) {
         if (adPk < 0 || commentDto == null) {
             throw new IllegalArgumentException();
         }
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
         commentDto.setPk(adPk);
-        return commentService.addComments(username,ads, commentDto);
+        return commentService.addComments(username, ads, commentDto);
     }
 
 
@@ -84,7 +85,11 @@ public class AdsService {
     public FullAdsDto deleteAds(String username, int id) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
-        if(!ads.getUser().equals(user)) {throw new RequestDeniedException();}
+        if (!user.getRole().equals(Role.ADMIN)) {
+            if (!ads.getUser().equals(user)) {
+                throw new RequestDeniedException();
+            }
+        }
         commentService.deleteALLCommentOfAds(ads);
         imageService.deleteImageFile(Path.of(ads.getImage().getPathImage()));
         adsRepository.deleteById(id);
@@ -94,7 +99,11 @@ public class AdsService {
     public AdsDto updateAds(String username, int id, CreateAdsDto createAdsDto) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
-        if(!ads.getUser().equals(user)) {throw new RequestDeniedException();}
+        if (!user.getRole().equals(Role.ADMIN)) {
+            if (!ads.getUser().equals(user)) {
+                throw new RequestDeniedException();
+            }
+        }
         ads.setDescription(createAdsDto.getDescription());
         ads.setPrice(createAdsDto.getPrice());
         ads.setTitle(createAdsDto.getTitle());
@@ -110,14 +119,20 @@ public class AdsService {
     public void deleteCommentOfAds(String username, int adPk, int id) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
-        if(!ads.getUser().equals(user)) {throw new RequestDeniedException();}
-        commentService.deleteCommentOfAds(id);
+        Comment comment = commentService.getCommentById(id);
+        if (user.getRole().equals(Role.ADMIN)) {
+            commentService.deleteCommentOfAds(id);
+        } else if (!comment.getUser().equals(user)) {
+            throw new RequestDeniedException();
+        } else commentService.deleteCommentOfAds(id);
     }
 
     public CommentDto updateComments(String username, int adPk, int id, CommentDto commentDto) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
-        if(!ads.getUser().equals(user)) {throw new RequestDeniedException();}
+        if (!ads.getUser().equals(user)) {
+            throw new RequestDeniedException();
+        }
         return commentService.updateComments(ads, id, commentDto);
     }
 
