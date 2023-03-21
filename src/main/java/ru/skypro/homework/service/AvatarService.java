@@ -15,17 +15,31 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Class for work with avatar
+ */
 @Service
 public class AvatarService {
     private final AvatarRepository avatarRepository;
     private final String avatarDir;
     private final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * @param avatarDir
+     * @param avatarRepository
+     */
     public AvatarService(@Value("${path.to.images.folder}./avatar")String avatarDir, AvatarRepository avatarRepository) {
         this.avatarRepository = avatarRepository;
         this.avatarDir = avatarDir;
     }
 
+    /**
+     * Method for create add avatar
+     *
+     * @param user
+     * @param multipartFile
+     * @return avatar
+     */
     public Avatar addAvatar(User user, MultipartFile multipartFile) {
         try{
             byte[] img = multipartFile.getBytes();
@@ -39,6 +53,13 @@ public class AvatarService {
         }catch (IOException io) {
             throw new RuntimeException();}
     }
+
+    /**
+     * Method for return image
+     *
+     * @param idAvatar
+     * @return Files.readAllBytes
+     */
     public byte[] getImage(int idAvatar) {
         Avatar avatar = avatarRepository.findById(idAvatar).orElseThrow(AvatarNotFoundException::new);
         Path path = Path.of(avatar.getPathAvatar());
@@ -49,6 +70,13 @@ public class AvatarService {
         }
     }
 
+    /**
+     * Method for update avatar
+     *
+     * @param user
+     * @param file
+     * @return addAvatar
+     */
     public Avatar updateAvatar(User user, MultipartFile file) {
         Avatar ava = user.getAvatar();
         if (ava != null) {
@@ -63,14 +91,23 @@ public class AvatarService {
         return addAvatar(user, file);
     }
 
-
+    /**
+     * Method for check image
+     *
+     * @param avatar
+     */
     private void checkImage(Avatar avatar) {
         if (avatar.getId() == null || avatarRepository.findById(avatar.getId()).isEmpty()) {
             throw new AvatarNotFoundException();
         }
     }
 
-    public void deleteImageFile(Path path) {
+    /**
+     * Method for delete image file
+     *
+     * @param path
+     */
+    public static void deleteImageFile(Path path) {
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {

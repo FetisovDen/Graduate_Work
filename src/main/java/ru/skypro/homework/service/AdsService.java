@@ -17,6 +17,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class for work with ads
+ */
 @Service
 public class AdsService {
     private final AdsRepository adsRepository;
@@ -27,6 +30,15 @@ public class AdsService {
     private final UserService userService;
     private final UserRepository userRepository;
 
+    /**
+     * @param adsRepository
+     * @param commentService
+     * @param adsMapper
+     * @param userMapper
+     * @param imageService
+     * @param userService
+     * @param userRepository
+     */
     public AdsService(AdsRepository adsRepository, CommentService commentService, AdsMapper adsMapper,
                       UserMapper userMapper, ImageService imageService, UserService userService,
                       UserRepository userRepository) {
@@ -39,7 +51,11 @@ public class AdsService {
         this.userRepository = userRepository;
     }
 
-
+    /**
+     * Method for return all ads
+     *
+     * @return ResponseWrapperAdsDto
+     */
     public ResponseWrapperAdsDto getAllAds() {
         List<Ads> listAds = adsRepository.findAll();
         List<AdsDto> listAdsDto = new ArrayList<>();
@@ -49,6 +65,14 @@ public class AdsService {
         return new ResponseWrapperAdsDto(listAdsDto.size(), listAdsDto);
     }
 
+    /**
+     * Method for create ads
+     *
+     * @param userName
+     * @param createAdsDto
+     * @param multipartFile
+     * @return adsMapper.adsToDTO
+     */
     public AdsDto addAds(String userName, CreateAdsDto createAdsDto, MultipartFile multipartFile) {
         Ads ads = adsMapper.adsToEntity(createAdsDto);
         ads.setUser(userMapper.toEntity(userService.getUserDto(userName)));
@@ -58,11 +82,25 @@ public class AdsService {
         return adsMapper.adsToDTO(ads);
     }
 
+    /**
+     * Method for return all comments by ads id
+     *
+     * @param adPk
+     * @return commentService.getAllCommentsByAds
+     */
     public ResponseWrapperCommentDto getAllCommentsByAdsId(int adPk) {
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
         return commentService.getAllCommentsByAds(ads);
     }
 
+    /**
+     * Method for add comment by ads
+     *
+     * @param username
+     * @param commentDto
+     * @param adPk
+     * @return commentService.addComments
+     */
     public CommentDto addComments(String username, int adPk, CommentDto commentDto) {
         if (adPk < 0 || commentDto == null) {
             throw new IllegalArgumentException();
@@ -72,7 +110,12 @@ public class AdsService {
         return commentService.addComments(username, ads, commentDto);
     }
 
-
+    /**
+     * Method for return full ads dto by ads id
+     *
+     * @param id
+     * @return adsMapper.adsToFullAdsDTO
+     */
     public FullAdsDto getFullAds(int id) {
         if (id < 0) {
             throw new IllegalArgumentException();
@@ -82,6 +125,13 @@ public class AdsService {
         return adsMapper.adsToFullAdsDTO(ads);
     }
 
+    /**
+     * Method for delete ads
+     *
+     * @param username
+     * @param id
+     * @return adsMapper.adsToFullAdsDTO
+     */
     public FullAdsDto deleteAds(String username, int id) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
@@ -94,6 +144,14 @@ public class AdsService {
         return adsMapper.adsToFullAdsDTO(ads);
     }
 
+    /**
+     * Method for update ads
+     *
+     * @param username
+     * @param id
+     * @param createAdsDto
+     * @return adsMapper.adsToDTO
+     */
     public AdsDto updateAds(String username, int id, CreateAdsDto createAdsDto) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(id).orElseThrow(AdsNotFoundException::new);
@@ -107,11 +165,25 @@ public class AdsService {
         return adsMapper.adsToDTO(ads);
     }
 
+    /**
+     * Method for get comment by ads and comment id
+     *
+     * @param adPk
+     * @param id
+     * @return commentService.getCommentOfAds
+     */
     public CommentDto getCommentOfAds(int adPk, int id) {
         adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
         return commentService.getCommentOfAds(id);
     }
 
+    /**
+     * Method for delete comment by ads
+     *
+     * @param username
+     * @param adPk
+     * @param id
+     */
     public void deleteCommentOfAds(String username, int adPk, int id) {
         User user = userRepository.findByUserName(username);
         adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
@@ -122,6 +194,15 @@ public class AdsService {
         commentService.deleteCommentOfAds(id);
     }
 
+    /**
+     * Method for update comment
+     *
+     * @param username
+     * @param adPk
+     * @param id
+     * @param commentDto
+     * @return commentService.updateComments
+     */
     public CommentDto updateComments(String username, int adPk, int id, CommentDto commentDto) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(adPk).orElseThrow(AdsNotFoundException::new);
@@ -131,6 +212,12 @@ public class AdsService {
         return commentService.updateComments(ads, id, commentDto);
     }
 
+    /**
+     * Method for get all ads by username
+     *
+     * @param userName
+     * @return ResponseWrapperAdsDto
+     */
     public ResponseWrapperAdsDto getAdsMe(String userName) {
         User user = userMapper.toEntity(userService.getUserDto(userName));
         List<Ads> listAds = adsRepository.findAllByUser(user);

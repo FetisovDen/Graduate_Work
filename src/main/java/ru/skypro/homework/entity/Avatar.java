@@ -6,6 +6,9 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * Entity for work with avatar
+ */
 @Entity
 @Getter
 @Setter
@@ -17,8 +20,6 @@ public class Avatar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String pathAvatar;
-//    @Lob
-//    private byte[] bytes;
 
     public Avatar(Integer id, String pathAvatar) {
         this.id = id;

@@ -2,6 +2,9 @@ package ru.skypro.homework.dto;
 
 import lombok.Data;
 
+/**
+ * DTO for work with users
+ */
 @Data
 public class UserDto {
     private Integer id;

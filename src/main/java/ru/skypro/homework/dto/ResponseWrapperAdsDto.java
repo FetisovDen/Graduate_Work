@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DTO for display list ads
+ */
 @Data
 public class ResponseWrapperAdsDto {
     private Integer count;
