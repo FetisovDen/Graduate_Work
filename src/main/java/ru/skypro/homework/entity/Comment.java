@@ -7,6 +7,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Entity for work with comment
+ */
 @Getter
 @Setter
 @ToString

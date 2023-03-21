@@ -11,6 +11,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AuthService;
 import ru.skypro.homework.service.UserService;
+
+/**
+ * Class for work with authorisation
+ */
 @Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -28,6 +32,14 @@ public class AuthServiceImpl implements AuthService {
         this.encoder = encoder;
     }
 
+    /**
+     * Method for login, check user in db
+     * Password check work with encrypted password and encoder matches
+     *
+     * @param username
+     * @param password
+     * @return encoder.matches
+     */
     @Override
     public boolean login(String username, String password) {
         if (!userService.userCheck(username)) {
@@ -40,6 +52,13 @@ public class AuthServiceImpl implements AuthService {
         return encoder.matches(password, encryptedPassword);
     }
 
+    /**
+     * Method for register, save user in db
+     * Password save with encryption
+     *
+     * @param registerReq
+     * @param role
+     */
     @Override
     public boolean register(RegisterReq registerReq, Role role) {
         if (userRepository.existsUserByUserName(registerReq.getUsername())) {

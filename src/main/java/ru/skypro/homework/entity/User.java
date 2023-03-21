@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Entity for work with user
+ */
 @Entity
 @Getter
 @Setter

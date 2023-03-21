@@ -20,7 +20,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-
+/**
+ * Class for work with image
+ */
 @Service
 public class ImageService {
     private final String imageDir;
@@ -29,6 +31,12 @@ public class ImageService {
     private final UserRepository userRepository;
     private final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * @param imageDir
+     * @param imageRepository
+     * @param adsRepository
+     * @param userRepository
+     */
     public ImageService(@Value("${path.to.images.folder}./ads") String imageDir, ImageRepository imageRepository,
                         AdsRepository adsRepository, UserRepository userRepository) {
         this.imageDir = imageDir;
@@ -37,6 +45,13 @@ public class ImageService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Method for create add image
+     *
+     * @param ads
+     * @param multipartFile
+     * @return image
+     */
     public Image addImage(Ads ads, MultipartFile multipartFile) {
         try {
             byte[] img = multipartFile.getBytes();
@@ -51,6 +66,13 @@ public class ImageService {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Method for return image
+     *
+     * @param idAds
+     * @return Files.readAllBytes
+     */
     public byte[] getImage(int idAds) {
         Ads ads = adsRepository.findById(idAds).orElseThrow(AdsNotFoundException::new);
         Path path = Path.of(ads.getImage().getPathImage());
@@ -61,6 +83,15 @@ public class ImageService {
         }
 
     }
+
+    /**
+     * Method for update image
+     *
+     * @param username
+     * @param idAds
+     * @param image
+     * @return Files.readAllBytes
+     */
     public byte[] updateImage(String username, int idAds, MultipartFile image) {
         User user = userRepository.findByUserName(username);
         Ads ads = adsRepository.findById(idAds).orElseThrow(AdsNotFoundException::new);
@@ -88,11 +119,13 @@ public class ImageService {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Method for delete image file
+     *
+     * @param path
+     */
     public void deleteImageFile(Path path) {
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException e) {
-            throw new RuntimeException(path + " file in not removed in file system");
-        }
+        AvatarService.deleteImageFile(path);
     }
 }

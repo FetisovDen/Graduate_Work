@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * DTO for display list comments
+ */
 @Data
 public class ResponseWrapperCommentDto {
     private Integer count;

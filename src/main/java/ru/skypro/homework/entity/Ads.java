@@ -6,6 +6,9 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * Entity for work with ads
+ */
 @Entity
 @Getter
 @Setter
