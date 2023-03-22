@@ -1,50 +1,73 @@
 package ru.skypro.homework.service.impl;
 
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.RegisterReq;
 import ru.skypro.homework.dto.Role;
-import ru.skypro.homework.service.AuthService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
+import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.AuthService;
+import ru.skypro.homework.service.UserService;
+
+/**
+ * Class for work with authorisation
+ */
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
-
-    private final UserDetailsManager manager;
+    private final UserDetailsService userDetailsService;
+    private final UserService userService;
+    private final UserRepository userRepository;
 
     private final PasswordEncoder encoder;
 
-    public AuthServiceImpl(UserDetailsManager manager) {
-        this.manager = manager;
-        this.encoder = new BCryptPasswordEncoder();
+
+    public AuthServiceImpl(UserDetailsService userDetailsService, UserService userService, UserRepository userRepository, PasswordEncoder encoder) {
+        this.userDetailsService = userDetailsService;
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
+    /**
+     * Method for login, check user in db
+     * Password check work with encrypted password and encoder matches
+     *
+     * @param username
+     * @param password
+     * @return encoder.matches
+     */
     @Override
-    public boolean login(String userName, String password) {
-        if (!manager.userExists(userName)) {
+    public boolean login(String username, String password) {
+        if (!userService.userCheck(username)) {
+            log.warn(username + "- UserName not found");
             return false;
         }
-        UserDetails userDetails = manager.loadUserByUsername(userName);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         String encryptedPassword = userDetails.getPassword();
-        String encryptedPasswordWithoutEncryptionType = encryptedPassword.substring(8);
-        return encoder.matches(password, encryptedPasswordWithoutEncryptionType);
+
+        return encoder.matches(password, encryptedPassword);
     }
 
+    /**
+     * Method for register, save user in db
+     * Password save with encryption
+     *
+     * @param registerReq
+     * @param role
+     */
     @Override
     public boolean register(RegisterReq registerReq, Role role) {
-        if (manager.userExists(registerReq.getUsername())) {
+        if (userRepository.existsUserByUserName(registerReq.getUsername())) {
+            log.warn(registerReq + " - this login is busy");
             return false;
         }
-        manager.createUser(
-                User.withDefaultPasswordEncoder()
-                        .password(registerReq.getPassword())
-                        .username(registerReq.getUsername())
-                        .roles(role.name())
-                        .build()
-        );
+        String encodedPassword = encoder.encode(registerReq.getPassword());
+        registerReq.setPassword(encodedPassword);
+        userService.addUser(registerReq);
         return true;
     }
 }
